@@ -1,30 +1,18 @@
 import express from "express";
-import { CashService } from "./cash";
-import { ProductService } from "./product";
+import { CashService } from "./mvc/controllers/services/cash.service";
+import { ProductService } from "./mvc/controllers/services/product.service";
+import { ProductController } from "./mvc/controllers/product.controller";
+import { CouponController } from "./mvc/controllers/coupon.controller";
 const app = express();
 
+const productController = new ProductController();
+const couponController = new CouponController();
+
 //상품 구매하기
-app.post("/product/buy", (req, res) => {
-  //1. 가진 돈 검증
-  const cashService = new CashService();
-  const hasMoney = cashService.checkValue(); //return true or false
-  //2. 판매 여부 검증
-  const productService = new ProductService();
-  const isSoldOut = productService.checkSoldout();
-  //3. 상품 구매 코드
-  if (hasMoney && !isSoldOut) {
-    res.send("상품 구매 완료");
-  }
-});
+app.post("/product/buy", productController.buyProduct); //얘는 function이 아니라 메셔드(객체 안에 포함되어 있어서)
 //상품 판매하기
-app.post("/product/refund", (req, res) => {
-  //1. 판매 여부 검증
-  const productService = new ProductService();
-  const isSoldOut = productService.checkSoldout();
-  //2. 상품 환불 코드
-  if (isSoldOut) {
-    res.send("상품 환불 완료");
-  }
-});
+app.post("/product/refund", productController.refundProduct);
+
+app.post("/coupons/buy", couponController.buyCoupon);
 
 app.listen(3001);
